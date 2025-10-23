@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KLH Digital Library — CSE Books</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="left">
+      <div class="logo">
+        <img src="https://img.icons8.com/fluency/48/000000/books.png" alt="logo" />
+        <span class="brand">KLH Book Store</span>
+      </div>
+    </div>
+
+    <div class="center">
+      <form id="searchForm" onsubmit="return false;">
+        <input id="searchInput" type="search" placeholder="Search by title, author or publisher..." />
+        <select id="categorySelect" aria-label="Filter by category">
+          <option value="All">All Subjects</option>
+          <option value="CSE Core">CSE Core</option>
+          <option value="Programming">Programming</option>
+          <option value="GATE">GATE</option>
+          <option value="Algorithms">Algorithms</option>
+          <option value="Operating System">Operating System</option>
+          <option value="Computer Networks">Computer Networks</option>
+          <option value="DBMS">DBMS</option>
+          <option value="AI/ML">AI/ML</option>
+          <option value="Web Dev">Web Dev</option>
+          <option value="Software Engineering">Software Engineering</option>
+        </select>
+
+        <select id="sortSelect" aria-label="Sort books">
+          <option value="newest">Newest First</option>
+          <option value="title-asc">Title: A → Z</option>
+          <option value="title-desc">Title: Z → A</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+          <option value="year-desc">Year: New → Old</option>
+          <option value="year-asc">Year: Old → New</option>
+        </select>
+        <button id="resetFilters" type="button" title="Reset filters">Reset</button>
+      </form>
+    </div>
+
+    <div class="right">
+      <button id="darkModeToggle" title="Toggle dark mode">🌙</button>
+      <div class="wallet">Wallet: ₹<span id="walletBalance">16000</span></div>
+      <button id="favoritesBtn" title="Favorites (saved)">❤️ <span id="favCount">0</span></button>
+      <button id="readingListBtn" title="Reading List">📚 <span id="readingCount">0</span></button>
+      <button id="cartBtn" title="Cart">🛒 <span id="cartCount">0</span></button>
+    </div>
+  </header>
+
+  <main class="main-grid">
+    <aside class="sidebar">
+      <!-- Add Book Form (left corner) -->
+      <section class="add-book" aria-labelledby="addBookHeading">
+        <h4 id="addBookHeading">Add a Book</h4>
+        <form id="addBookForm" onsubmit="return false;">
+          <input id="ab_title" name="title" type="text" placeholder="Title" required />
+          <input id="ab_author" name="author" type="text" placeholder="Author(s)" required />
+          <input id="ab_publisher" name="publisher" type="text" placeholder="Publisher" />
+          <input id="ab_year" name="year" type="number" placeholder="Year" min="1800" max="2100" />
+          <input id="ab_category" name="category" type="text" placeholder="Category" />
+          <input id="ab_cover" name="cover" type="url" placeholder="Cover image URL" />
+          <input id="ab_price" name="price" type="number" placeholder="Price (INR)" min="0" />
+          <select id="ab_availability" name="availability">
+            <option value="in stock">In stock</option>
+            <option value="out of stock">Out of stock</option>
+          </select>
+          <textarea id="ab_description" name="description" placeholder="Short description" rows="3"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="addBookBtn" type="button">Add Book</button>
+            <button id="clearAddBookBtn" type="button">Clear</button>
+          </div>
+        </form>
+      </section>
+      <section class="wallet-card">
+        <h3 style="
+    color: black;">Digital Wallet</h3>
+        <div class="wallet-amount">₹<span id="walletSidebar">16000</span></div>
+        <small id="recentTransaction">No recent transactions</small>
+        <div style="margin-top:8px">
+          <button id="topUpBtn">Top Up Wallet</button>
+        </div>
+      </section>
+
+      <section class="filters">
+        <h4>Filters</h4>
+        <div class="genre-grid">
+          <label><input type="checkbox" class="genreCheckbox" value="CSE Core" /> CSE Core</label>
+          <label><input type="checkbox" class="genreCheckbox" value="Programming" /> Programming</label>
+          <label><input type="checkbox" class="genreCheckbox" value="GATE" /> GATE</label>
+          <label><input type="checkbox" class="genreCheckbox" value="Algorithms" /> Algorithms</label>
+          <label><input type="checkbox" class="genreCheckbox" value="Operating System" /> Operating System</label>
+          <label><input type="checkbox" class="genreCheckbox" value="Computer Networks" /> Computer Networks</label>
+          <label><input type="checkbox" class="genreCheckbox" value="DBMS" /> DBMS</label>
+          <label><input type="checkbox" class="genreCheckbox" value="AI/ML" /> AI/ML</label>
+        </div>
+        <div class="filter-actions">
+          <button id="applyFiltersBtn">Apply Filters</button>
+          <button id="clearFiltersBtn">Clear</button>
+        </div>
+      </section>
+
+      <section class="recently-viewed">
+        <h4>Recently Viewed</h4>
+        <ul id="recentlyViewedList" class="recent-list"></ul>
+      </section>
+    </aside>
+
+    <section class="content">
+      <div class="toolbar">
+        <div class="results">
+          <strong id="bookCount">0</strong> books found
+        </div>
+        <div class="actions">
+          <button id="viewReadingBtn">View Reading List</button>
+          <button id="viewFavoritesBtn">View Favorites</button>
+        </div>
+      </div>
+
+      <div id="bookGrid" class="book-grid"></div>
+    </section>
+
+    <aside class="right-panel">
+      <section class="cart-summary">
+        <h4>Shopping Cart</h4>
+        <div id="cartPreview" class="cart-preview">No items in cart</div>
+        <div class="cart-total">Total: ₹<span id="cartTotal">0</span></div>
+        <div class="cart-actions">
+          <button id="openCartBtn">Open Cart</button>
+          <button id="checkoutBtn">Checkout</button>
+        </div>
+      </section>
+
+      <section class="reading-list-preview">
+        <h4>Reading List</h4>
+        <ul id="readingPreviewList" class="preview-list"></ul>
+      </section>
+
+      <section class="ratings-info">
+        <h4>Top Rated</h4>
+        <div id="topRatedPreview">—</div>
+      </section>
+
+      <section class="transactions">
+        <h4>Transactions</h4>
+        <ul id="transactionHistory" class="preview-list"></ul>
+      </section>
+    </aside>
+  </main>
+
+  <!-- Book Modal -->
+  <div id="bookModal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close="bookModal">✖</button>
+      <div class="modal-left">
+        <img id="modalCover" src="" alt="Book Cover" />
+      </div>
+      <div class="modal-right">
+        <h2 id="modalTitle">Book Title</h2>
+        <p class="meta"><strong>Author:</strong> <span id="modalAuthor"></span></p>
+        <p class="meta"><strong>Publisher:</strong> <span id="modalPublisher"></span></p>
+        <p class="meta"><strong>Year:</strong> <span id="modalYear"></span></p>
+        <p class="meta"><strong>Category:</strong> <span id="modalCategory"></span></p>
+        <p class="price">Price: ₹<span id="modalPrice"></span></p>
+        <p id="modalDesc" class="description"></p>
+
+        <div class="modal-actions">
+          <button id="modalAddCart">Add to Cart</button>
+          <button id="modalAddReading">Add to Reading List</button>
+          <button id="modalFavToggle">❤️Favorite</button>
+          <button id="modalReadOnline">Read Online</button>
+          <a id="modalDownload" href="#" target="_blank" rel="noopener" download><button>Download Sample</button></a>
+        </div>
+
+        <div class="rating-row">
+          <label>Rate this book:</label>
+          <div id="modalRating" class="rating"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Modal -->
+  <div id="cartModal" class="modal" aria-hidden="true">
+    <div class="modal-content small" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close="cartModal">✖</button>
+      <h2>Shopping Cart</h2>
+      <div id="cartItemsList" class="cart-items-list"></div>
+      <div class="cart-footer">
+        <div>Total: ₹<span id="cartModalTotal">0</span></div>
+        <button id="cartCheckoutBtn">Checkout</button>
+        <button id="clearCartBtn">Clear Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Quantity Modal -->
+  <div id="qtyModal" class="modal" aria-hidden="true">
+    <div class="modal-content small" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close="qtyModal">✖</button>
+      <h3>Confirm Order Quantity</h3>
+      <div style="margin:10px 0">Enter quantity to apply to the entire cart:</div>
+      <input id="qtyInput" type="number" min="1" value="1" style="width:80px;padding:6px" />
+      <div style="margin-top:12px">
+        <button id="confirmQtyBtn">Confirm & Pay</button>
+        <button id="cancelQtyBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top-Up Modal -->
+  <div id="topupModal" class="modal" aria-hidden="true">
+    <div class="modal-content small" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close="topupModal">✖</button>
+      <h3>Top Up Wallet</h3>
+      <input id="topupAmount" type="number" min="1" placeholder="Amount (₹)" style="width:120px;padding:6px" />
+      <div style="margin-top:12px">
+        <button id="topupConfirmBtn">Add Money</button>
+        <button id="topupCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reading List Modal -->
+  <div id="readingModal" class="modal" aria-hidden="true">
+    <div class="modal-content small" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close="readingModal">✖</button>
+      <h2>Reading List</h2>
+      <div id="readingListItems" class="list-items"></div>
+    </div>
+  </div>
+
+  <!-- Favorites Modal -->
+  <div id="favModal" class="modal" aria-hidden="true">
+    <div class="modal-content small" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close="favModal">✖</button>
+      <h2>Favorites</h2>
+      <div id="favListItems" class="list-items"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <footer class="site-footer">
+    <small>© KLH Book Store — Digital Library (Demo)</small>
+  </footer>
+
+  <script defer src="script.js"></script>
+</body>
+</html>
